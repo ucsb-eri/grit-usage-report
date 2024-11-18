@@ -1,3 +1,4 @@
+flit
 psycopg[binary]
 pyncclient
 python-dotenv

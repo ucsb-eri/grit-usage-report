@@ -25,7 +25,7 @@ def size_to_bytes(space_str):
     return quantity * sizes.get(size, 1)
 
 
-if __name__ == "__main__":
+def run():
     # config = {"USER": "foo", "EMAIL": "foo@example.org"}
     config = dotenv_values(".env")
     print(config)
