@@ -1,4 +1,4 @@
-name: Build Python Package
+name: Release
 
 on:
   release:
@@ -9,7 +9,7 @@ env:
 
 
 jobs:
-  release-build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
