@@ -39,6 +39,6 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             FILENAME="$(basename '${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}')"
-            pip install --force-reinstall ~/usage_reports/releases/github/workspace/$FILENAME
+            sudo pip install --force-reinstall ~/usage_reports/releases/github/workspace/$FILENAME
       - uses: actions/checkout@v4
 
