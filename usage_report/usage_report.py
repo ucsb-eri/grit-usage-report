@@ -3,7 +3,14 @@ from datetime import datetime
 import psycopg
 import xlsxwriter
 import re
-from dotenv import dotenv_values
+import os
+from xdg_base_dirs import xdg_config_home
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 def size_to_bytes(space_str):
@@ -20,18 +27,28 @@ def size_to_bytes(space_str):
         quantity = float(m.group(1))
         size = m.group(2)
 
-    print(quantity)
-    print(size)
     return quantity * sizes.get(size, 1)
 
 
 def run():
     # config = {"USER": "foo", "EMAIL": "foo@example.org"}
-    config = dotenv_values(".env")
-    print(config)
+    config_path = os.path.join(xdg_config_home(), "usage_report", "config.toml")
+    try:
+        f = open(config_path, "rb")
+        config = tomllib.load(f)
+    except FileNotFoundError:
+        print(f"Config file not found. Create {config_path}")
+        exit(1)
+    except tomllib.TOMLDecodeError:
+        print(f"Config is  invalid. Edit: {config_path}")
+        exit(1)
 
     now = datetime.now()
-    workbook = xlsxwriter.Workbook(f"usage_report_{now.year}{now.month}{now.day}{now.hour}{now.minute}{now.second}.xlsx")
+    output = os.path.join(
+        config.get('output', {}).get("path", "/home/grit_share/recharge/"),
+        f"usage_report_{now.year}{now.month}{now.day}{now.hour}{now.minute}{now.second}.xlsx",
+    )
+    workbook = xlsxwriter.Workbook(output)
 
     bold = workbook.add_format({"bold": True})
     currency = workbook.add_format({"num_format": "$#,##0.00"})
@@ -55,9 +72,8 @@ def run():
     for idx, header in enumerate(headers):
         main_sheet.write(0, idx, header, bold)
 
-    with psycopg.connect(
-        f'postgresql://{config.get("POSTGRES_USER")}:{config.get("POSTGRES_PASS", "")}@{config.get("POSTGRES_HOST", "")}:{config.get("POSTGRES_PORT", "5432")}/{config.get("POSTGRES_DB", "")}'
-    ) as conn:
+    db_config = config.get('database', {})
+    with psycopg.connect(f'postgresql://{db_config.get("user")}:{db_config.get("pass", "")}@{db_config.get("host", "")}:{db_config.get("port", 5432)}/{db_config.get("db", "")}') as conn:
         with conn.cursor() as cur:
             cur.execute(
                 'SELECT x.Hostname, x.filesystem, x.used_space, x.properties FROM public.zfs_snapshots x WHERE x.properties @> \'{"grit:billable": "true"}\''
@@ -69,7 +85,6 @@ def run():
                 hostname, dataset, used_space, properties = record
                 size_bytes = size_to_bytes(used_space)
                 size_terrabytes = size_bytes / (10**12)
-                print(f"{hostname} {dataset} {used_space} {size_terrabytes}")
 
                 main_sheet.write(idx + 1, 0, hostname)
                 main_sheet.write(idx + 1, 1, dataset)

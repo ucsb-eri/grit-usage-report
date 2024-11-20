@@ -3,10 +3,17 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "grit_usage_report"
-description="GRIT Usage Report"
-authors = [{name = "Tjaart van der Walt", email = "tjaart@ucsb.edu"}]
+name = "usage_report"
+description = "GRIT Usage Report"
+authors = [{ name = "Tjaart van der Walt", email = "tjaart@ucsb.edu" }]
 dynamic = ["version"]
+dependencies = [
+	"psycopg[binary]",
+	"tomli",
+	"xdg-base-dirs",
+	"XlsxWriter",
+]
+
 
 [project.scripts]
 usage_report = "usage_report:main"
