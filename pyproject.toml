@@ -9,4 +9,4 @@ authors = [{name = "Tjaart van der Walt", email = "tjaart@ucsb.edu"}]
 dynamic = ["version"]
 
 [project.scripts]
-usage_report = "grit_usage_report:main"
+usage_report = "usage_report:main"
