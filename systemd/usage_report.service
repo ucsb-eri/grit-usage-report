@@ -1,0 +1,9 @@
+[Unit]
+Description=Grit Usage Report
+
+[Service]
+ExecStart=/usr/local/bin/usage_report
+Type=oneshot
+
+[Install]
+WantedBy=default.target
