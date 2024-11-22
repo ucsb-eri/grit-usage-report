@@ -1,5 +1,0 @@
-flit
-psycopg[binary]
-pyncclient
-python-dotenv
-XlsxWriter

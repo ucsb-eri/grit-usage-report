@@ -32,12 +32,15 @@ def size_to_bytes(space_str):
 
 def run():
     # config = {"USER": "foo", "EMAIL": "foo@example.org"}
-    config_path = os.path.join(xdg_config_home(), "usage_report", "config.toml")
+    system_config = os.path.join("/", "etc", "usage_report", "config.toml")
+    user_config = os.path.join(xdg_config_home(), "usage_report", "config.toml")
+    config_path = user_config if os.path.exists(user_config) else system_config
+
     try:
         f = open(config_path, "rb")
         config = tomllib.load(f)
     except FileNotFoundError:
-        print(f"Config file not found. Create {config_path}")
+        print(f"No configuration found!\n\nFor system config, create: {system_config}\nFor user config, create: {user_config}")
         exit(1)
     except tomllib.TOMLDecodeError:
         print(f"Config is  invalid. Edit: {config_path}")
