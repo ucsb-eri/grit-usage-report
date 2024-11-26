@@ -100,4 +100,7 @@ def run():
                 main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
                 main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
 
+                if size_terrabytes == 0:
+                    main_sheet.set_row(idx + 1, None, None, {'hidden': True})
+
     workbook.close()
