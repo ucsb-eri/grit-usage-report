@@ -47,9 +47,10 @@ def run():
         exit(1)
 
     now = datetime.now()
+    print(now)
     output = os.path.join(
         config.get('output', {}).get("path", "/home/grit_share/recharge/"),
-        f"usage_report_{now.year}{now.month}{now.day}{now.hour}{now.minute}{now.second}.xlsx",
+        f"usage_report_{now.strftime('%Y%m%d%H%M%S')}.xlsx",
     )
     workbook = xlsxwriter.Workbook(output)
 
