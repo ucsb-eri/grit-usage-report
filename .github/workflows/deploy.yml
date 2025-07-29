@@ -17,20 +17,30 @@ jobs:
     runs-on: [self-hosted, linux, deploy]
 
     steps:
+      - name: Set XDG_RUNTIME_DIR
+        run: echo "XDG_RUNTIME_DIR=/run/user/1000" >> $GITHUB_ENV
       - name: download release
         id: download_release
         uses: robinraju/release-downloader@v1
         with:
           latest: true
           fileName: '*.whl'
+      # - name: copy release file
+      #   uses: appleboy/scp-action@v0.1.7
+      #   with:
+      #     host: ${{ vars.HOST }}
+      #     username: ${{ vars.USERNAME }}
+      #     key: ${{ secrets.KEY }}
+      #     source: ${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}
+      #     target: /gritadm/usage_reports/releases/
       - name: copy release file
-        uses: appleboy/scp-action@v0.1.7
+        uses: garygrossgarten/github-action-scp@0.9.0
         with:
+          local: ${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}
+          remote: /gritadm/usage_reports/releases/
           host: ${{ vars.HOST }}
           username: ${{ vars.USERNAME }}
-          key: ${{ secrets.KEY }}
-          source: ${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}
-          target: /gritadm/usage_reports/releases/
+          privateKey: ${{ secrets.KEY }}
       - name: install release
         uses: appleboy/ssh-action@v1.2.0
         with:
