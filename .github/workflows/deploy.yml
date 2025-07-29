@@ -26,16 +26,16 @@ jobs:
       - name: copy release file
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ vars.HOST }}
+          username: ${{ vars.USERNAME }}
           key: ${{ secrets.KEY }}
           source: ${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}
           target: ~/usage_reports/releases/
       - name: install release
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ vars.HOST }}
+          username: ${{ vars.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
             FILENAME="$(basename '${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}')"
