@@ -30,7 +30,7 @@ jobs:
           username: ${{ vars.USERNAME }}
           key: ${{ secrets.KEY }}
           source: ${{ fromJson(steps.download_release.outputs.downloaded_files)[0] }}
-          target: ~/usage_reports/releases/
+          target: /gritadm/usage_reports/releases/
       - name: install release
         uses: appleboy/ssh-action@v1.2.0
         with:
