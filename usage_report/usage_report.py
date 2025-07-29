@@ -71,6 +71,7 @@ def run():
         "grit:owner",
         "grit:projectcode",
         "grit:lafscode",
+        "grit:ccoa",
     ]
 
     for idx, header in enumerate(headers):
@@ -100,6 +101,7 @@ def run():
                 main_sheet.write(idx + 1, 4, properties.get("grit:owner"))
                 main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
                 main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
+                main_sheet.write(idx + 1, 7, properties.get("grit:ccoa"))
 
                 if size_terrabytes == 0:
                     main_sheet.set_row(idx + 1, None, None, {'hidden': True})
