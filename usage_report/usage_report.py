@@ -40,7 +40,11 @@ def run():
         f = open(config_path, "rb")
         config = tomllib.load(f)
     except FileNotFoundError:
-        print(f"No configuration found!\n\nFor system config, create: {system_config}\nFor user config, create: {user_config}")
+        print(
+            f"No configuration found!\n\nFor system config, create: {
+                system_config
+            }\nFor user config, create: {user_config}"
+        )
         exit(1)
     except tomllib.TOMLDecodeError:
         print(f"Config is  invalid. Edit: {config_path}")
@@ -49,13 +53,14 @@ def run():
     now = datetime.now()
     print(now)
     output = os.path.join(
-        config.get('output', {}).get("path", "/home/grit_share/recharge/"),
+        config.get("output", {}).get("path", "/home/grit_share/recharge/"),
         f"usage_report_{now.strftime('%Y%m%d%H%M%S')}.xlsx",
     )
     workbook = xlsxwriter.Workbook(output)
 
     bold = workbook.add_format({"bold": True})
     currency = workbook.add_format({"num_format": "$#,##0.00"})
+    date = workbook.add_format({'num_format': 'yyyy-mm-dd HH:MM:SS'})
 
     main_sheet = workbook.add_worksheet("Main")
 
@@ -72,22 +77,25 @@ def run():
         "grit:projectcode",
         "grit:lafscode",
         "grit:ccoa",
+        "Date collected",
     ]
 
     for idx, header in enumerate(headers):
         main_sheet.write(0, idx, header, bold)
 
-    db_config = config.get('database', {})
-    with psycopg.connect(f'postgresql://{db_config.get("user")}:{db_config.get("pass", "")}@{db_config.get("host", "")}:{db_config.get("port", 5432)}/{db_config.get("db", "")}') as conn:
+    db_config = config.get("database", {})
+    with psycopg.connect(
+        f"postgresql://{db_config.get('user')}:{db_config.get('pass', '')}@{db_config.get('host', '')}:{db_config.get('port', 5432)}/{db_config.get('db', '')}"
+    ) as conn:
         with conn.cursor() as cur:
             cur.execute(
-                'SELECT x.Hostname, x.filesystem, x.used_space, x.properties FROM public.zfs_snapshots x WHERE x.properties @> \'{"grit:billable": "true"}\''
+                'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp FROM public.zfs_snapshots x WHERE x.properties @> \'{"grit:billable": "true"}\''
             )
 
             cur.fetchone()
 
             for idx, record in enumerate(cur):
-                hostname, dataset, used_space, properties = record
+                hostname, dataset, used_space, properties, timestamp = record
                 size_bytes = size_to_bytes(used_space)
                 size_terrabytes = size_bytes / (10**12)
 
@@ -102,8 +110,9 @@ def run():
                 main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
                 main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
                 main_sheet.write(idx + 1, 7, properties.get("grit:ccoa"))
+                main_sheet.write_datetime(idx + 1, 8, timestamp, date)
 
                 if size_terrabytes == 0:
-                    main_sheet.set_row(idx + 1, None, None, {'hidden': True})
+                    main_sheet.set_row(idx + 1, None, None, {"hidden": True})
 
     workbook.close()
