@@ -110,7 +110,7 @@ def run():
                 main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
                 main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
                 main_sheet.write(idx + 1, 7, properties.get("grit:ccoa"))
-                main_sheet.write_datetime(idx + 1, 8, timestamp, date)
+                main_sheet.write_datetime(idx + 1, 8, timestamp.replace(tzinfo=None), date)
 
                 if size_terrabytes == 0:
                     main_sheet.set_row(idx + 1, None, None, {"hidden": True})
