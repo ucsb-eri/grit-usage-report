@@ -89,7 +89,7 @@ def run():
     ) as conn:
         with conn.cursor() as cur:
             cur.execute(
-                'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp FROM public.zfs_snapshots x WHERE x.properties @> \'{"grit:billable": "true"}\''
+                'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp FROM public.zfs_snapshots x WHERE x.disabled = false AND x.properties @> \'{"grit:billable": "true"}\''
             )
 
             cur.fetchone()
