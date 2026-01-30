@@ -106,10 +106,10 @@ def run():
                     idx + 1, 3, f"=Data!B1 * C{idx + 2}", currency, ""
                 )
                 # main_sheet.write(idx + 1, 3, f"=C{idx + 1} * $data!.$B$1")
-                main_sheet.write(idx + 1, 4, properties.get("grit:owner"))
+                main_sheet.write(idx + 1, 3, properties.get("grit:owner"))
                 # main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
                 # main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
-                main_sheet.write(idx + 1, 7, properties.get("grit:ccoa"))
+                main_sheet.write(idx + 1, 4, properties.get("grit:ccoa"))
                 main_sheet.write_datetime(idx + 1, 8, timestamp.replace(tzinfo=None), date)
 
                 if size_terrabytes == 0:
