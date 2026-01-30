@@ -74,8 +74,8 @@ def run():
         "Used Space (TB)",
         "Total dollar $",
         "grit:owner",
-        "grit:projectcode",
-        "grit:lafscode",
+        # "grit:projectcode",
+        # "grit:lafscode",
         "grit:ccoa",
         "Date collected",
     ]
@@ -107,8 +107,8 @@ def run():
                 )
                 # main_sheet.write(idx + 1, 3, f"=C{idx + 1} * $data!.$B$1")
                 main_sheet.write(idx + 1, 4, properties.get("grit:owner"))
-                main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
-                main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
+                # main_sheet.write(idx + 1, 5, properties.get("grit:projectcode"))
+                # main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
                 main_sheet.write(idx + 1, 7, properties.get("grit:ccoa"))
                 main_sheet.write_datetime(idx + 1, 8, timestamp.replace(tzinfo=None), date)
 
