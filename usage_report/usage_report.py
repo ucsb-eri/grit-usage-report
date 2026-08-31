@@ -56,6 +56,7 @@ def run():
         config.get("output", {}).get("path", "/home/grit_share/recharge/"),
         f"usage_report_{now.strftime('%Y%m%d%H%M%S')}.xlsx",
     )
+        
     workbook = xlsxwriter.Workbook(output)
 
     bold = workbook.add_format({"bold": True})
@@ -88,9 +89,23 @@ def run():
         f"postgresql://{db_config.get('user')}:{db_config.get('pass', '')}@{db_config.get('host', '')}:{db_config.get('port', 5432)}/{db_config.get('db', '')}"
     ) as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp FROM public.zfs_snapshots x WHERE x.disabled = false AND x.properties @> \'{"grit:billable": "true"}\''
-            )
+            billable_applied = config.get("filter_enabled", {}).get("billable", True)
+            disabled_applied = config.get("filter_enabled", {}).get("disabled", True)
+
+            query_string = 'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp FROM public.zfs_snapshots x'
+            if billable_applied or disabled_applied:
+                query_string += ' WHERE '
+
+            if disabled_applied:
+                query_string += 'x.disabled = false '
+
+            if disabled_applied and billable_applied:
+                query_string += 'AND '
+
+            if billable_applied:
+                query_string += 'x.properties @> \'{"grit:billable": "true"}\''
+            
+            cur.execute(query_string)
 
             cur.fetchone()
 
