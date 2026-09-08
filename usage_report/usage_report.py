@@ -79,6 +79,10 @@ def run():
         # "grit:lafscode",
         "grit:ccoa",
         "Date collected",
+        "user",
+        "group",
+        "uid",
+        "gid",
     ]
 
     for idx, header in enumerate(headers):
@@ -92,7 +96,7 @@ def run():
             billable_applied = config.get("filter_enabled", {}).get("billable", True)
             disabled_applied = config.get("filter_enabled", {}).get("disabled", True)
 
-            query_string = 'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp FROM public.zfs_snapshots x'
+            query_string = 'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp, x.user, x.group, x.uid, x.gid FROM public.zfs_snapshots x'
             if billable_applied or disabled_applied:
                 query_string += ' WHERE '
 
@@ -110,7 +114,7 @@ def run():
             cur.fetchone()
 
             for idx, record in enumerate(cur):
-                hostname, dataset, used_space, properties, timestamp = record
+                hostname, dataset, used_space, properties, timestamp, user, group, uid, gid = record
                 size_bytes = size_to_bytes(used_space)
                 size_terrabytes = size_bytes / (10**12)
 
@@ -126,6 +130,10 @@ def run():
                 # main_sheet.write(idx + 1, 6, properties.get("grit:lafscode"))
                 main_sheet.write(idx + 1, 5, properties.get("grit:ccoa"))
                 main_sheet.write_datetime(idx + 1, 6, timestamp.replace(tzinfo=None), date)
+                main_sheet.write_datetime(idx + 1, 7, user)
+                main_sheet.write_datetime(idx + 1, 8, group)
+                main_sheet.write_datetime(idx + 1, 9, uid)
+                main_sheet.write_datetime(idx + 1, 10, gid)
 
                 if size_terrabytes == 0:
                     main_sheet.set_row(idx + 1, None, None, {"hidden": True})
