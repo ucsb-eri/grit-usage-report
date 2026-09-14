@@ -95,20 +95,33 @@ def run():
         with conn.cursor() as cur:
             billable_applied = config.get("filter_enabled", {}).get("billable", True)
             disabled_applied = config.get("filter_enabled", {}).get("disabled", True)
+            leaf_only_applied = config.get("filter_enabled", {}).get("leaf_only", True)
 
             query_string = 'SELECT x.Hostname, x.filesystem, x.used_space, x.properties, x.timestamp, x.user, x.group, x.uid, x.gid FROM public.zfs_snapshots x'
-            if billable_applied or disabled_applied:
-                query_string += ' WHERE '
+
+            conditions = []
 
             if disabled_applied:
-                query_string += 'x.disabled = false '
-
-            if disabled_applied and billable_applied:
-                query_string += 'AND '
+                conditions.append('x.disabled = false')
 
             if billable_applied:
-                query_string += 'x.properties @> \'{"grit:billable": "true"}\''
-            
+                conditions.append('x.properties @> \'{"grit:billable": "true"}\'')
+
+            if leaf_only_applied:
+                # Only report leaf nodes: any dataset that has a descendant
+                # dataset on the same host is a parent and is left out. This is
+                # purely structural, so the other filters do not affect it.
+                conditions.append(
+                    'NOT EXISTS ('
+                    'SELECT 1 FROM public.zfs_snapshots c '
+                    'WHERE c.Hostname = x.Hostname '
+                    'AND starts_with(c.filesystem, x.filesystem || \'/\')'
+                    ')'
+                )
+
+            if conditions:
+                query_string += ' WHERE ' + ' AND '.join(conditions)
+
             cur.execute(query_string)
 
             cur.fetchone()
